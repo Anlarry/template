@@ -25,6 +25,7 @@
 --------
 
 <font size = 4>[KMP](#13)</font>  
+<font size = 4>[Manacher](#Manacher)</font>  
 <font size = 4>[ac-自动机](#12)</font>  
 <font size = 4>[回文树](#16)</font>  
 <font size = 4>[后缀数组](#17)</font>  
@@ -894,6 +895,52 @@ int main()
         cout << ans << "\n";
     }
     return 0;
+}
+```
+
+## Manacher
+```c++
+char s[MAX];
+char t[(MAX<<1)+50];
+int p[(MAX<<1)+50];
+void init(){
+	int n = strlen(s);
+	t[0] = '@';
+	t[1] = '#';
+	t[2*n+2] = 0;
+	for(int i = 0; s[i]; i++){
+		t[(i<<1)+3] = '#';
+		t[(i<<1)+2] = s[i];
+	}
+}
+void solve(){
+	init();
+	// mset(p, 0);
+	int Max = 0, id, ans = 0, ans_id;
+	for(int i = 1; t[i]; i++){
+		if(Max > i){
+			int j = (id << 1) - i;
+			p[i] = min(p[j], Max - i);
+		}
+		else p[i] = 1;
+		for(; t[i-p[i]] == t[i+p[i]]; p[i]++);
+		if(p[i]+i > Max) Max = p[i] + i, id = i;
+		// ans = max(ans, p[i]);
+		if(p[i] > ans) ans = p[i], ans_id = i;
+	}
+	printf("%d\n", --ans);
+}
+int main(){
+#ifdef DEBUG
+	freopen64("in", "r", stdin);
+#endif
+	int T = 1;
+	while(~scanf("%s", s)){
+		if(!strcmp(s, "END")) break;
+		printf("Case %d: ", T++);
+		solve();
+	}
+	return 0;
 }
 ```
 
