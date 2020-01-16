@@ -16,6 +16,9 @@
 &nbsp; &nbsp; []()
 </font>
 
+
+<font size = 4>[Splay](#Splay)</font>
+
 --------
 
 <font size = 4>[可持久化线段树](#9)</font>  
@@ -643,6 +646,161 @@ int main()
     return 0;
 }
 ```
+
+## Splay 
+```c++
+template<class T>
+struct node{
+    T val;
+    int  l, r, p;
+    node(int val = 0, int l = -1, int r = -1, int p=-1) : val(val), l(l), r(r), p(p){}
+};
+template<class T>
+struct SplayTree{
+    node<T> tr[MAX];
+    int  rt, tot;;
+    void init(){
+        tot = 0, rt = -1;
+    }
+    void Splay(int u);
+    void right_rotate(int u);
+    void left_rotate(int u);
+    int find(T x);
+    void insert(T x);
+    void erase(T x);
+    int successor(int u);
+    int predecessor(int u);
+    node<T>& operator [](int x){
+        return tr[x];
+    }
+};
+template<class T>
+void SplayTree<T>::Splay(int u){
+    if(u == rt) return;
+    for(int& p = tr[u].p; tr[u].p != -1; ){
+        if(u == tr[p].l)
+            right_rotate(p);
+        else
+            left_rotate(p);
+    }
+    rt = u;
+}
+template<class T>
+void SplayTree<T>::right_rotate(int u){
+    // u must have left child
+    int v = tr[u].l;
+    tr[u].l = tr[v].r;
+    if(tr[v].r != -1) tr[tr[v].r].p = u;
+    tr[v].r = u;
+    if(tr[u].p != -1){
+        int p = tr[u].p;
+        if(tr[p].l == u) tr[p].l = v;
+        else tr[p].r = v;
+    }
+    tr[v].p = tr[u].p;
+    tr[u].p = v;
+}
+template<class T>
+void SplayTree<T>::left_rotate(int u){
+    // u must have right child
+    int v = tr[u].r;
+    tr[u].r = tr[v].l;
+    if(tr[v].l != -1) tr[tr[v].l].p = u;
+    tr[v].l = u;
+    if(tr[u].p != -1){
+        int p = tr[u].p;
+        if(tr[p].l == u) tr[p].l = v;
+        else tr[p].r = v;
+    }
+    tr[v].p = tr[u].p;
+    tr[u].p = v;
+}
+template<class T>
+int SplayTree<T>::find(T x){
+    int u = rt;
+    while(~u and tr[u].val != x){
+        if(tr[u].val > x)
+            u = tr[u].l;
+        else u = tr[u].r;
+    }
+    if(u != -1) Splay(u);
+    return u;
+}
+template<class T>
+void SplayTree<T>::insert(T x){
+    if(rt == -1){
+        rt = 0;
+        tr[tot++] = node<T>(x, -1, -1, -1);
+        return;
+    }
+    int u = rt, p = -1;
+    while(~u and tr[u].val != x){
+        p = u;
+        if(tr[u].val > x)
+           u = tr[u].l;
+        else u = tr[u].r;
+    }
+    if(u != -1) return ;
+    tr[tot++] = node<T>(x, -1, -1, p);
+    if(x < tr[p].val) tr[p].l = tot-1;
+    else tr[p].r = tot-1;
+    tr[tot-1].p = p;
+    Splay(tot-1);
+}
+template<class T>
+int SplayTree<T>::successor(int u){
+    if(tr[u].r != -1){
+        int v = tr[u].r;
+        while(tr[v].l != -1)
+            v = tr[v].l;
+        return v;
+    }
+    else{
+        int p = tr[u].p;
+        while(p != -1 and u == tr[p].r) u = p, p = tr[u].p;
+        return p;
+    }
+}
+template<class T>
+int SplayTree<T>::predecessor(int u){
+    if(tr[u].l != -1){
+        int v = tr[u].l;
+        while(tr[v].r != -1) v = tr[v].r;
+        return v;
+    }
+    else{
+        int p =tr[u].p;
+        while(p != -1 and u == tr[p].l) 
+            u = p, p = tr[u].p;
+        return p;
+    }
+}
+template<class T>
+void SplayTree<T>::erase(T x){
+    int u = find(x);
+    if(tr[rt].l != -1){
+        tr[tr[rt].l].p = -1;
+        int v = tr[u].l;
+        while(tr[v].r != -1) v = tr[v].r;
+        Splay(v);
+        rt = v;
+        tr[v].r = tr[u].r;
+        if(tr[u].r != -1) tr[tr[u].r].p = v;
+    }
+    else if(tr[rt].r != -1) {
+        tr[tr[rt].r].p = -1;
+        int v = tr[u].r;
+        while(tr[v].l != -1) v = tr[v].l;
+        Splay(v);
+        rt = v;
+        tr[v].l = tr[u].l;
+        if(tr[u].l != -1) tr[tr[u].l].p = v;
+    } 
+    else init();
+}
+```
+
+
 ---------
 
 <h2 id = 9>可持久化线段树</h2>  
