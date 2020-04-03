@@ -1104,6 +1104,7 @@ int main(){
 
 <h2 id = 12>ac-自动机</h2>
 
+
 ```c++
 struct node
 {
@@ -1203,6 +1204,74 @@ int main()
     return 0;
 }
 ```
+
+Fail 指针和next优化 
+
+> next数组因该改指针数组，提高可读性
+
+```c++
+struct node
+{
+    int next[26], cnt, fail, id;//match;
+};
+
+struct AC_auto
+{
+    int tot, rt;
+    node T[MAX];
+    void init(){
+        tot = 1;
+        rt = 1;
+        T[rt].cnt = T[rt].fail = 0;
+        mset(T[rt].next, 0);
+    }
+    int insert(char *s, int id){
+        int u = rt;
+        for(int i = 0; s[i] != 0; i++){
+            int c = s[i] - 'a';
+            if(!T[u].next[c]){
+                T[u].next[c] = ++ tot;
+                mset(T[tot].next, 0);
+                T[tot].fail = T[tot].cnt = 0;
+            } 
+            u = T[u].next[c];
+        }
+        T[u].cnt++;
+        T[u].id = id;
+        return u;
+    }
+    void build(){
+        queue<int> Q;
+        Q.push(rt);
+        while(!Q.empty()){
+            int u = Q.front();Q.pop();
+            for(int i = 0; i < 26; i++){
+                if(T[u].next[i]){
+                    if(u == rt){
+                        T[T[u].next[i]].match = rt;
+                        T[T[u].next[i]].fail = rt;
+                    }
+                    else{
+                        int p = T[u].fail;
+                        T[T[u].next[i]].fail = T[T[u].fail].next[i];
+                        // T[T[u].next[i]].match = T[T[T[u].next[i]].fail].id ? T[T[u].next[i]].fail : T[T[T[u].next[i]].fail].match;
+                    }
+                    Q.push(T[u].next[i]);
+                }
+                else{
+                    T[u].next[i] = u == rt ? rt : T[T[u].fail].next[i];
+                }
+            }
+        }
+    }
+    node& operator [] (int idx){
+        return T[idx];
+    }
+}T;
+
+```
+
+
 
 <h2 id = 16>回文树</h2>   
 
