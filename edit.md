@@ -32,8 +32,8 @@
 <font size = 4>[ac-自动机](#12)</font>  
 <font size = 4>[回文树](#16)</font>  
 <font size = 4>[后缀数组](#17)</font>  
-<font size = 4>[SAM](#SAM)</font> 
-
+<font size = 4>[SAM](#SAM)</font>   
+<font size = 4>[广义SAM](#GSAM)</font>
 --------
 
 <font size = 4>[FFT](#15)</font>
@@ -1474,6 +1474,98 @@ int main(){
 	for(int i = 0; s[i]; i++)	sam.extend(s[i]-'a');
 	printf("%d\n", sam.lcs(t));	
 	return 0;
+}
+```
+
+## GSAM
+
+```c++
+struct GSAM
+{
+    int len[MAX<<1];
+    int next[MAX<<1][26];
+    int link[MAX<<1];
+    int tot;
+    void init(){
+        tot = 1;
+        len[0] = 0;
+        link[0] = -1;
+    }
+    void insert_trie(string &s){
+        int rt = 0;
+        for(auto c : s) {
+            if(next[rt][c-'a']) rt = next[rt][c-'a'];
+            else{
+                next[rt][c-'a'] = tot++;
+                rt = next[rt][c-'a'];
+            }
+        }
+    }
+    int insert_sam(int last, int c){
+        int cur = next[last][c];
+        if(len[cur]) return cur;
+        len[cur] = len[last] + 1;
+        int p = link[last];
+        for(; p != -1 and !next[p][c]; p = link[p]){
+            next[p][c] = cur;
+        }
+        if(p == -1) {
+            link[cur] = 0;
+            return cur;
+        }
+        int q = next[p][c];
+        if(len[q] == len[p] + 1) {
+            link[cur] = q;
+            return cur;
+        }
+        int clone = tot++;
+        for(int i = 0; i < 26; i++){
+            next[clone][i] = len[next[q][i]] != 0 ? next[q][i] : 0;
+        }
+        len[clone] = len[p] + 1;
+        for(; p != -1 and next[p][c] == q; p = link[p])
+            next[p][c] = clone;
+        link[clone] = link[q];
+        link[cur] = clone;
+        link[q] = clone;
+        return cur;
+    }
+    void build(){
+        queue<P> Q;
+        for(int i = 0; i < 26; i++){
+            if(next[0][i]) Q.emplace(i, 0);
+        }
+        while(!Q.empty()){
+            auto cur = Q.front();
+            Q.pop();
+            auto last = insert_sam(cur.second, cur.first);
+            for(int i = 0; i < 26; i++) {
+                if(next[last][i]) Q.emplace(i, last);
+            }
+        }
+    }
+}sam;
+
+int main(){
+#ifdef DEBUG
+    freopen64("in", "r", stdin);
+#endif
+    int T;
+    scanf("%d", &T);
+    sam.init();
+    while (T--)
+    {
+        string s;
+        cin >> s;
+        sam.insert_trie(s);
+    }
+    sam.build();
+    LL ans= 0;
+    for(int i = 1; i < sam.tot; i++){
+        ans += (LL) sam.len[i] - sam.len[sam.link[i]];
+    }
+    printf("%lld\n", ans);
+    return 0;
 }
 ```
 
