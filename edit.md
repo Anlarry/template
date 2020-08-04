@@ -1057,6 +1057,8 @@ int main()
 ```
 
 ## Manacher
+
+> version 1
 ```c++
 char s[MAX];
 char t[(MAX<<1)+50];
@@ -1099,6 +1101,56 @@ int main(){
 		solve();
 	}
 	return 0;
+}
+```
+
+> version 2
+```c++ 
+int radius[MAX];
+string manacherStr(const string &s){
+    string ans = "#";
+    for(int i = 0; i < s.size(); i++){
+        ans += s[i];
+        ans += "#";
+    }
+    return ans; 
+}
+int manacher(const string &s){
+    if(s.size() == 0) return 0;
+    int R = -1;
+    int C = -1;
+    int Max = -inf;
+    string str = manacherStr(s);
+    for(int i = 0; i < str.size(); i++){
+        // radius[i] = R > i ? min(radius[2*C-i], R-i+1) : 1;
+        if(R > i) radius[i] = min(radius[2*C-i], R-i+1);
+        else radius[i] = 1;
+        while(i + radius[i] < str.size() and i - radius[i] > -1) {
+            if(str[i-radius[i]] == str[i+radius[i]] ){
+                radius[i] ++;
+            }
+            else break;
+        }
+        if(i+radius[i] > R){
+            R = i + radius[i]-1;
+            C = i;
+        }
+        Max = max(Max, radius[i]);
+    }
+    return (Max-1) ;
+}
+string s;
+int main(){
+#ifdef DEBUG
+    freopen("in", "r", stdin);
+#endif  
+    int cas = 1;
+    while (cin >> s)
+    {
+        if(s == "END") break;
+        printf("Case %d: %d\n", cas++, manacher(s));
+    }
+    return 0;   
 }
 ```
 
