@@ -40,6 +40,10 @@
 
 --------
 
+<font size = 4>[Convex Hull Trick](#Convex_Hull_Trick)</font>
+
+--------
+
 <font size = 4>[快读、快写](#3)</font>  
 
 ----------
@@ -1676,6 +1680,46 @@ int main(){
     return 0;
 }
 ```
+
+----------
+
+# Convex_Hull_Trick
+
+```cpp
+// Max 
+struct Stk
+{
+    pair<LL, LL> stk[MAX];
+    int top ;
+    vector<double> pts;
+    Stk() : top(1) {
+        pts.push_back(-inf);
+    }
+    bool check(PLL A , PLL B, PLL C) {
+        return (A.first - C.first) * (B.second - A.second) <= 
+            (A.first - B.first ) * (C.second - A.second);
+    }
+    double cross(PLL A, PLL B) {
+        return 1.0 * (B.first - A.first) / (A.second - B.second);
+    }
+    void push(PLL x) {
+        while(top >= 2 and check(stk[top-2], stk[top-1], x)){
+            top --;
+            pts.pop_back();
+        }
+        stk[top++] = x;
+        if(top >= 2) {
+            pts.push_back(cross(stk[top-2], stk[top-1]));
+        }
+    }
+    LL query(LL x) {
+        int id = lower_bound(pts.begin(), pts.end(), x) - pts.begin();
+        id--;
+        return stk[id].first + stk[id].second * x;
+    }
+}stk;
+```
+
 
 ----------
 <h2 id = 3> 快读，快写 </h2>  
