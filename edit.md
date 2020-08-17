@@ -28,6 +28,7 @@
 --------
 
 <font size = 4>[KMP](#13)</font>  
+<font size = 4>[最小表示法](#最小表示法)</font>  
 <font size = 4>[Manacher](#Manacher)</font>  
 <font size = 4>[ac-自动机](#12)</font>  
 <font size = 4>[回文树](#16)</font>  
@@ -1057,6 +1058,39 @@ int main()
         cout << ans << "\n";
     }
     return 0;
+}
+```
+
+## 最小表示法 
+
+```cpp
+
+struct Less{
+    bool operator () (char a, char b) {
+        return a < b;
+    }
+};
+struct Greator{
+    bool operator () (char a, char b) {
+        return a > b;
+    }
+};
+template<typename Cmp>
+int calcu(const string &s){
+    int k = 0, i = 0, j = 1;
+    int n = s.size();
+    Cmp cmp;
+    while (k < n and i < n and j < n)
+    {
+        if(s[(i+k)%n] == s[(j+k)%n]) k++;
+        else {
+            // s[(i+k)%n] < s[(j+k)%n] ? j = j + k + 1 : i = i + k + 1;
+            cmp(s[(i+k)%n], s[(j+k)%n]) ? j = j + k + 1 : i = i + k + 1;
+            if(i == j) i++;
+            k = 0;
+        }
+    }
+    return min(i, j);
 }
 ```
 
