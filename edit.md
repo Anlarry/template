@@ -1754,6 +1754,37 @@ struct Stk
 }stk;
 ```
 
+> optimaization dp
+
+```cpp
+// dp[i] = min{b[j]*a[i]+c[j]}
+struct Stk
+{
+    P stk[1005];
+    int top, pos;
+    void init() {
+        top = pos = 0;
+    }   
+    bool check(P A, P B, P C) {
+        return (C.first - A.first) * (A.second - B.second) <= (B.first - A.first) *  (A.second - C.second);
+    } 
+    void push(P x) {
+        while(top >= 2 and check(stk[top-2], stk[top-1], x)) {
+            if(pos == top-1) pos --;
+            top--;
+        }
+        stk[top++] = x;
+    }
+    int evalf(P A, int x) {
+        return A.first + A.second * x;
+    }
+    int query(int x) {
+        while(pos + 1 < top and evalf(stk[pos+1], x) < evalf(stk[pos], x))
+            pos++;
+        return evalf(stk[pos], x);
+    }
+};
+```
 
 ----------
 <h2 id = 3> 快读，快写 </h2>  
