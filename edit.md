@@ -35,6 +35,8 @@
 <font size = 4>[后缀数组](#17)</font>  
 <font size = 4>[SAM](#SAM)</font>   
 <font size = 4>[广义SAM](#GSAM)</font>
+
+
 --------
 
 <font size = 4>[FFT](#15)</font>
@@ -44,6 +46,10 @@
 <font size = 4>[Convex Hull Trick](#Convex_Hull_Trick)</font>
 
 --------
+
+<font size = 4>[匈牙利算法](#匈牙利)</font>
+
+-------
 
 <font size = 4>[快读、快写](#3)</font>  
 
@@ -1784,6 +1790,57 @@ struct Stk
         return evalf(stk[pos], x);
     }
 };
+```
+
+----------
+
+# 匈牙利
+
+```cpp
+
+int n, m;
+vector<int> E[1005];
+int match[1005];
+bool vis[1005];
+void addedge(int u, int v) {
+    E[u].push_back(v);
+    E[v].push_back(u);
+}
+bool dfs(int x) {
+    vis[x] = 1;
+    for(int i = 0; i < E[x].size(); i++) {
+        int u = E[x][i];
+        int w = match[u];
+        if(w < 0 || !vis[w] && dfs(w))  {
+            match[x] = u;
+            match[u] = x;
+            return true;
+        }
+    }
+    return false;
+}
+int Match(){
+    int res = 0;
+    mset(match, -1);
+    for(int i = 1; i <= n; i++) {
+        if(match[i] == -1) {
+            mset(vis, 0);
+            res += dfs(i);
+        }
+    }
+    return res;
+}
+int main(){
+    file_read();
+    scanf("%d%d", &n, &m);
+    for(int i = 1; i <= m; i++) {
+        int r, c;
+        scanf("%d%d", &r, &c);
+        addedge(r, n+c);
+    }
+    printf("%d", Match());
+    return 0;
+}
 ```
 
 ----------
