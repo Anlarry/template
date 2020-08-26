@@ -51,6 +51,10 @@
 
 -------
 
+<font size = 4>[旋转卡壳](#旋转卡壳)</font>
+
+-------
+
 <font size = 4>[快读、快写](#3)</font>  
 
 ----------
@@ -1895,6 +1899,89 @@ int main(){
         addedge(r, n+c);
     }
     printf("%d", Match());
+    return 0;
+}
+```
+
+---------
+
+# 旋转卡壳
+
+```cpp
+
+struct Vec
+{
+    double x, y;
+    Vec() {}
+    Vec(double x, double y) : x(x), y(y) {}
+    friend istream & operator >> (istream &in, Vec &A) {
+        in >> A.x >> A.y;
+        return in;
+    }    
+    friend Vec operator - (const Vec &A, const Vec &B) {
+        return Vec(A.x-B.x, A.y-B.y);
+    }
+    friend Vec operator + (const Vec &A, const Vec &B) {
+        return Vec(A.x + B.x, A.y + B.y);
+    }
+    friend double det(const Vec &A, const Vec &B) {
+        return A.x * B.y - A.y * B.x;
+    }
+    friend double dot(const Vec &A, const Vec &B) {
+        return A.x * B.x - A.y * B.y;
+    }
+    friend bool operator < (const Vec &A, const Vec &B) {
+        if(A.x != B.x) return A.x < B.x;
+        return A.y < B.y;
+    }  
+    double lenth() const {
+        return (x * x + y * y);
+    }
+};
+
+vector<Vec> convex_hull(vector<Vec> &pt) {
+    sort(pt.begin(), pt.end());
+    int n = pt.size();
+    vector<Vec> res(2*n);
+    int k = 0;
+    for(int i = 0; i < n; i++) {
+        while(k > 1 and det(res[k-1]-res[k-2], pt[i]-res[k-1]) <= 0) k--;
+        res[k++] = pt[i];
+    }
+    for(int i = n-2, t = k; i >= 0; i--) {
+        while(k > t and det(res[k-1]-res[k-2], pt[i]-res[k-1]) <= 0) k--;
+        res[k++] = pt[i];
+    }
+    res.resize(k-1);
+    return res;
+}
+
+double rotateCalipers(vector<Vec> pt) {
+    int n = pt.size();
+    pt.push_back(pt[0]);
+    double ans = -1;
+    int q = 1;
+    for(int i = 0; i < n; i++) {
+        while(det(pt[q]-pt[i], pt[q]-pt[i+1]) < det(pt[q+1]-pt[i], pt[q+1]-pt[i+1])) {
+            q = (q + 1) % n;
+        }
+        ans = max(ans, max((pt[q]-pt[i]).lenth(), (pt[q]-pt[i+1]).lenth()));
+    }
+    return ans;
+}
+
+vector<Vec> pts;
+int main() {
+    file_read();
+    int n;
+    scanf("%d", &n);
+    pts.resize(n);
+    for(int i = 0; i < n; i++) {
+        cin >> pts[i];
+    }
+    vector<Vec>  convex = convex_hull(pts);
+    double ans = rotateCalipers(convex);
+    printf("%.0f\n", ans);
     return 0;
 }
 ```
