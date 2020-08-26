@@ -1928,7 +1928,7 @@ struct Vec
         return A.x * B.y - A.y * B.x;
     }
     friend double dot(const Vec &A, const Vec &B) {
-        return A.x * B.x - A.y * B.y;
+        return A.x * B.x + A.y * B.y;
     }
     friend bool operator < (const Vec &A, const Vec &B) {
         if(A.x != B.x) return A.x < B.x;
