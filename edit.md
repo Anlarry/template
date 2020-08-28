@@ -28,7 +28,8 @@
 --------
 
 <font size = 4>[KMP](#13)</font>  
-<font size = 4>[最小表示法](#最小表示法)</font>  
+<font size = 4>[最小表示法](#最小表示法)</font>   
+<font size = 4>[Lyndon分解](#Lyndon分解)</font>   
 <font size = 4>[Manacher](#Manacher)</font>  
 <font size = 4>[ac-自动机](#12)</font>  
 <font size = 4>[回文树](#16)</font>  
@@ -1101,6 +1102,32 @@ int calcu(const string &s){
         }
     }
     return min(i, j);
+}
+```
+
+## Lyndon分解
+
+> oi-wiki
+```
+// duval_algorithm
+vector<string> duval(string const& s) {
+  int n = s.size(), i = 0;
+  vector<string> factorization;
+  while (i < n) {
+    int j = i + 1, k = i;
+    while (j < n && s[k] <= s[j]) {
+      if (s[k] < s[j])
+        k = i;
+      else
+        k++;
+      j++;
+    }
+    while (i <= k) {
+      factorization.push_back(s.substr(i, j - k));
+      i += j - k;
+    }
+  }
+  return factorization;
 }
 ```
 
