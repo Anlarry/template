@@ -19,6 +19,8 @@
 
 <font size = 4>[Splay](#Splay)</font>
 
+<font size = 4>[2维KDTree](KDTree)</font>
+
 --------
 
 <font size = 4>[可持久化线段树](#9)</font>  
@@ -816,6 +818,87 @@ void SplayTree<T>::erase(T x){
 }
 ```
 
+## KDTree
+
+```cpp
+LL pow2(int x) {
+    return 1LL * x * x;
+}
+struct Pos
+{
+    int x[2], c, id;
+    LL dis(const Pos &other) {
+        return pow2(x[0]-other.x[0]) + pow2(x[1]-other.x[1]);
+    }
+}tr[MAX<<2];
+bool flag[MAX<<2];
+Pos hotel[MAX];
+void build(int rt, int l, int r, int dim) {
+    if(l > r) {
+        return;
+    }
+    int mid = (l + r) >> 1;
+    nth_element(hotel+l, hotel+mid, hotel+r+1, [=](const Pos &A, const Pos &B) {
+        return A.x[dim] < B.x[dim];
+    });
+    tr[rt] = hotel[mid];
+    flag[rt] = true;
+    build(rt<<1, l, mid-1, dim^1);
+    build(rt<<1|1, mid+1, r, dim^1);
+}
+void query(int rt, int dim, Pos &q, Pos &ans) {
+    if(!flag[rt]) return ;
+    bool find = false;
+    int x = rt<<1, y = rt<<1|1;
+    if(tr[rt].x[dim] <= q.x[dim]) 
+        swap(x, y);
+    if(flag[x]) query(x, dim^1, q, ans);
+
+    if(ans.id == -1) {
+        if(tr[rt].c <= q.c) {
+            ans = tr[rt];
+        }
+        find = true;
+    }
+    else {
+        if(tr[rt].c <= q.c) {
+            if(tr[rt].dis(q) < ans.dis(q) || tr[rt].dis(q) == ans.dis(q) && tr[rt].id < ans.id) {
+                ans = tr[rt];
+            }
+        }
+        if(pow2(q.x[dim] - tr[rt].x[dim]) < ans.dis(q)) {
+            find = true;
+        }
+    }
+    if(find && flag[y]) 
+        query(y, dim^1,q, ans);
+}
+int main() {
+    file_read();
+    int T;
+    scanf("%d", &T);
+    while(T--) {
+        int n, m;
+        scanf("%d%d", &n, &m);
+        memset(flag, 0, sizeof(bool) * 4 * (n+5));
+        for(int i = 1; i <= n; i++) {
+            scanf("%d%d%d", &hotel[i].x[0], &hotel[i].x[1], &hotel[i].c);
+            hotel[i].id = i;
+        }
+        build(1, 1, n, 0);
+        for(int i = 0; i < m; i++) {
+            Pos q;
+            scanf("%d%d%d", &q.x[0], &q.x[1], &q.c);
+            Pos ans;
+            ans.id = -1;
+            query(1, 0, q, ans);
+            assert(ans.id != -1);
+            printf("%d %d %d\n", ans.x[0], ans.x[1], ans.c);
+        }
+    }
+    return 0;
+}
+```
 
 ---------
 
